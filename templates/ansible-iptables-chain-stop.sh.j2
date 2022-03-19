@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+set -x
+# ANSIBLE GENERATED, DO NOT MODIFY!!!!!
+
+iptables -D INPUT -i {{ iptables_chain__interface }} -j {{ iptables_chain__name }} || true
+iptables --flush {{ iptables_chain__name }} || true
+iptables -X {{ iptables_chain__name }} || true

@@ -1,0 +1,10 @@
+---
+iptables_chain__name: FILTER-INPUT-SECURE
+iptables_chain__state: present
+iptables_chain__dry_run: true
+iptables_chain__log_dropped: true
+iptables_chain__interface: eth0
+iptables_chain__whitelisted_cidrs:
+  - 10.0.0.0/8
+  - 172.16.0.0/12
+  - 192.168.0.0/16

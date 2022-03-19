@@ -1,0 +1,31 @@
+galaxy_info:
+  author: Rene Weselowski
+  description: maintain persistent iptables chain for input filtering
+
+  license: MIT
+
+  min_ansible_version: '2.4'
+
+  platforms:
+    - name: EL
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all
+    - name: GenericLinux
+      versions:
+        - all
+
+  galaxy_tags:
+    - networking
+    - system
+    - security
+    - firewall
+    - iptables
+    - tcp
+
+dependencies: []

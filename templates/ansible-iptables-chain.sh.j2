@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+set -x
+# ANSIBLE GENERATED, DO NOT MODIFY!!!!!
+
+# delete the existing chain
+# these are allowed to fail
+iptables -D INPUT -i {{ iptables_chain__interface }} -j {{ iptables_chain__name }} || true
+iptables -X {{ iptables_chain__name }} || true
+
+# create fresh chain
+iptables -N {{ iptables_chain__name }}
+
+# already validated can return
+iptables -A {{ iptables_chain__name }} -m conntrack ! --ctstate NEW -j  RETURN
+
+{% for cidr in whitelisted_cidrs  %}
+iptables -A {{ iptables_chain__name }} -s {{ cidr }}  -j  RETURN
+{% endfor %}
+
+# set default to accept during apply
+# we use return as we do not want to interfere with other blocking rules by accepting too early
+
+{% for rule in rules  %}
+iptables -A {{ iptables_chain__name }} -p {{ rule.protocol }} --dport {{ rule.port }}  -j  RETURN
+{% endfor %}
+
+{% if iptables_chain__dry_run == false %}
+{% if iptables_chain__log_dropped %}
+iptables -A {{ iptables_chain__name }} -j LOG --log-prefix '** DROPPING **'
+{% endif %}
+
+# set chain to drop by default
+iptables -A {{ iptables_chain__name }} -j DROP
+{% else %}
+# dry run, not dropping anything
+iptables -A {{ iptables_chain__name }} -j LOG --log-prefix '** DRY-RUN **'
+{% endif %}
+
+# add filter to first position of input chain
+iptables -I INPUT 1 -i {{ iptables_chain__interface }} -j {{ iptables_chain__name }}
+

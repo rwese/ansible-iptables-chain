@@ -1,0 +1,34 @@
+---
+- name: Deploy iptables start script
+  template:
+    dest: '/etc/ansible-iptables-chain-{{ iptables_chain__name }}.sh'
+    src: templates/ansible-iptables-chain.sh.j2
+    owner: root
+    group: root
+    mode: 0700
+  register: chain
+
+- name: Deploy iptables stop script
+  template:
+    dest: '/etc/ansible-iptables-chain-stop-{{ iptables_chain__name }}.sh'
+    src: templates/ansible-iptables-chain-stop.sh.j2
+    owner: root
+    group: root
+    mode: 0700
+
+- name: Copy iptables service
+  become: yes
+  vars:
+    whitelisted: '{{ whitelisted_cidrs | default(iptables_chain__whitelisted_cidrs) }}'
+  template:
+    src: templates/ansible-iptables-chain.service.j2
+    dest: '/etc/systemd/system/ansible-iptables-chain.service'
+    mode: '0660'
+  changed_when: false
+
+- name: Enable iptables service
+  become: yes
+  ansible.builtin.systemd:
+    name: 'ansible-iptables-chain.service'
+    enabled: "{{ 'yes' if iptables_chain__state == 'present' else 'no' }}"
+    state: "{{ 'restarted' if chain.changed else 'started' }}"

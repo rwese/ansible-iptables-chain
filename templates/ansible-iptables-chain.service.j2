@@ -1,0 +1,10 @@
+[Unit]
+Description=Update docker-compose images daily
+After=syslog.target
+
+[Service]
+Type=oneshot
+KillMode=process
+ExecStart=/etc/ansible-iptables-chain-{{ iptables_chain__name }}.sh
+ExecStop=/etc/ansible-iptables-chain-stop-{{ iptables_chain__name }}.sh
+RemainAfterExit=yes

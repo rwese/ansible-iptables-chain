@@ -5,7 +5,7 @@
     src: templates/ansible-iptables-chain.sh.j2
     owner: root
     group: root
-    mode: 0700
+    mode: 0740
   register: chain
 
 - name: Deploy iptables stop script
@@ -14,7 +14,7 @@
     src: templates/ansible-iptables-chain-stop.sh.j2
     owner: root
     group: root
-    mode: 0700
+    mode: 0740
 
 - name: Copy iptables service
   become: yes
@@ -23,7 +23,7 @@
   template:
     src: templates/ansible-iptables-chain.service.j2
     dest: '/etc/systemd/system/ansible-iptables-chain-{{ iptables_chain__name }}.service'
-    mode: '0660'
+    mode: '0664'
   changed_when: false
 
 - name: Enable iptables service

@@ -3,6 +3,7 @@ iptables_chain__name: FILTER-INPUT-SECURE
 iptables_chain__state: present
 # iptables_chain__default_no_match_action: RETURN
 iptables_chain__rulenum: 1
+iptables_chain__default_match_action: RETURN
 iptables_chain__default_no_match_action: DROP
 iptables_chain__dry_run: true
 iptables_chain__log_dropped: true

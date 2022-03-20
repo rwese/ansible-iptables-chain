@@ -21,7 +21,11 @@ iptables -A {{ iptables_chain__name }} -s {{ cidr }}  -j  RETURN
 # we use return as we do not want to interfere with other blocking rules by accepting too early
 
 {% for rule in rules  %}
-iptables -A {{ iptables_chain__name }} -p {{ rule.protocol }} --dport {{ rule.port }}  -j  RETURN
+{% set rule_action = iptables_chain__default_match_action %}
+{% if rule.action is defined %}
+{% set rule_action = rule.action %}
+{% endif %}
+iptables -A {{ iptables_chain__name }} -p {{ rule.protocol }} --dport {{ rule.port }} -j {{ rule_action }}
 {% endfor %}
 
 {% if not iptables_chain__dry_run | bool %}

@@ -8,7 +8,9 @@ iptables_chain__default_no_match_action: DROP
 iptables_chain__dry_run: true
 iptables_chain__log_dropped: true
 iptables_chain__interface: eth0
-iptables_chain__whitelisted_cidrs:
+iptables_chain__ip4_whitelisted_cidrs:
   - 10.0.0.0/8
   - 172.16.0.0/12
   - 192.168.0.0/16
+iptables_chain__ip6_whitelisted_cidrs:
+  - fc00::/7

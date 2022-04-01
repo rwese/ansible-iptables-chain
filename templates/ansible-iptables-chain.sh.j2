@@ -1,45 +1,93 @@
 #!/usr/bin/env bash
-set -x
+set -xe
 # ANSIBLE GENERATED, DO NOT MODIFY!!!!!
 
 # delete the existing chain
-# these are allowed to fail
-iptables -D INPUT -i {{ iptables_chain__interface }} -j {{ iptables_chain__name }} || true
-iptables -X {{ iptables_chain__name }} || true
+# these are allowed to fail, as the chain may not exist
+iptables -t filter -D INPUT -i {{ iptables_chain__interface }} -j {{ iptables_chain__name }} 2>/dev/null || true
+iptables -t filter -D FORWARD -i {{ iptables_chain__interface }} -j {{ iptables_chain__name }} 2>/dev/null || true
+iptables -t filter -F {{ iptables_chain__name }} || true
+iptables -t filter -Z {{ iptables_chain__name }} || true
+iptables -t filter -X {{ iptables_chain__name }} || true
 
 # create fresh chain
-iptables -N {{ iptables_chain__name }}
+iptables -t filter -N {{ iptables_chain__name }}
 
 # already validated can return
-iptables -A {{ iptables_chain__name }} -m conntrack ! --ctstate NEW -j  RETURN
+iptables -t filter -A {{ iptables_chain__name }} -m conntrack ! --ctstate NEW -j  RETURN
 
-{% for cidr in whitelisted_cidrs  %}
-iptables -A {{ iptables_chain__name }} -s {{ cidr }}  -j  RETURN
+{% for cidr in ip4_whitelisted_cidrs  %}
+iptables -t filter -A {{ iptables_chain__name }} -s {{ cidr }}  -j  RETURN
 {% endfor %}
 
 # set default to accept during apply
 # we use return as we do not want to interfere with other blocking rules by accepting too early
 
-{% for rule in rules  %}
+{% for rule in ip4_rules  %}
 {% set rule_action = iptables_chain__default_match_action %}
 {% if rule.action is defined %}
 {% set rule_action = rule.action %}
 {% endif %}
-iptables -A {{ iptables_chain__name }} -p {{ rule.protocol }} --dport {{ rule.port }} -j {{ rule_action }}
+iptables -t filter -A {{ iptables_chain__name }} -p {{ rule.protocol }} --dport {{ rule.port }} -j {{ rule_action }}
 {% endfor %}
 
 {% if not iptables_chain__dry_run | bool %}
 {% if iptables_chain__log_dropped | bool %}
-iptables -A {{ iptables_chain__name }} -j LOG --log-prefix '** DROPPING ** '
+iptables -t filter -A {{ iptables_chain__name }} -j LOG --log-prefix '** DROPPING ** '
 {% endif %}
 
 # set chain to drop by default
-iptables -A {{ iptables_chain__name }} -j {{ iptables_chain__default_no_match_action }}
+iptables -t filter -A {{ iptables_chain__name }} -j {{ iptables_chain__default_no_match_action }}
 {% else %}
 # dry run, not dropping anything
-iptables -A {{ iptables_chain__name }} -j LOG --log-prefix '** DRY-RUN ** '
+iptables -t filter -A {{ iptables_chain__name }} -j LOG --log-prefix '** DRY-RUN ** '
 {% endif %}
 
 # add filter to first position of input chain
-iptables -I INPUT {{ iptables_chain__rulenum }} -i {{ iptables_chain__interface }} -j {{ iptables_chain__name }}
+iptables -t filter -I INPUT {{ iptables_chain__rulenum }} -i {{ iptables_chain__interface }} -j {{ iptables_chain__name }}
+iptables -t filter -I FORWARD {{ iptables_chain__rulenum }} -i {{ iptables_chain__interface }} -j {{ iptables_chain__name }}
 
+# delete the existing chain
+# these are allowed to fail, as the chain may not exist
+ip6tables -t filter -D INPUT -i {{ iptables_chain__interface }} -j {{ iptables_chain__name }} 2>/dev/null || true
+ip6tables -t filter -D FORWARD -i {{ iptables_chain__interface }} -j {{ iptables_chain__name }} 2>/dev/null || true
+ip6tables -t filter -F {{ iptables_chain__name }} || true
+ip6tables -t filter -Z {{ iptables_chain__name }} || true
+ip6tables -t filter -X {{ iptables_chain__name }} || true
+
+# create fresh chain
+ip6tables -t filter -N {{ iptables_chain__name }}
+
+# already validated can return
+ip6tables -t filter -A {{ iptables_chain__name }} -m conntrack ! --ctstate NEW -j  RETURN
+
+{% for cidr in ip6_whitelisted_cidrs | default(iptables_chain__ip6_whitelisted_cidrs) %}
+ip6tables -t filter -A {{ iptables_chain__name }} -s {{ cidr }}  -j  RETURN
+{% endfor %}
+
+# set default to accept during apply
+# we use return as we do not want to interfere with other blocking rules by accepting too early
+
+{% for rule in ip6_rules  %}
+{% set rule_action = iptables_chain__default_match_action %}
+{% if rule.action is defined %}
+{% set rule_action = rule.action %}
+{% endif %}
+ip6tables -t filter -A {{ iptables_chain__name }} -p {{ rule.protocol }} --dport {{ rule.port }} -j {{ rule_action }}
+{% endfor %}
+
+{% if not iptables_chain__dry_run | bool %}
+{% if iptables_chain__log_dropped | bool %}
+ip6tables -t filter -A {{ iptables_chain__name }} -j LOG --log-prefix '** DROPPING ** '
+{% endif %}
+
+# set chain to drop by default
+ip6tables -t filter -A {{ iptables_chain__name }} -j {{ iptables_chain__default_no_match_action }}
+{% else %}
+# dry run, not dropping anything
+ip6tables -t filter -A {{ iptables_chain__name }} -j LOG --log-prefix '** DRY-RUN ** '
+{% endif %}
+
+# add filter to first position of input chain
+ip6tables -t filter -I INPUT {{ iptables_chain__rulenum }} -i {{ iptables_chain__interface }} -j {{ iptables_chain__name }}
+ip6tables -t filter -I FORWARD {{ iptables_chain__rulenum }} -i {{ iptables_chain__interface }} -j {{ iptables_chain__name }}

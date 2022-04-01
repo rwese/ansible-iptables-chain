@@ -19,7 +19,8 @@
 - name: Copy iptables service
   become: yes
   vars:
-    whitelisted: '{{ whitelisted_cidrs | default(iptables_chain__whitelisted_cidrs) }}'
+    ip4_whitelisted_cidrs: '{{ ip4_whitelisted_cidrs | default(iptables_chain__ip4_whitelisted_cidrs) }}'
+    # ip6_whitelisted_cidrs: '{{ ip6_whitelisted_cidrs | default(iptables_chain__ip6_whitelisted_cidrs) }}'
   template:
     src: templates/ansible-iptables-chain.service.j2
     dest: '/etc/systemd/system/ansible-iptables-chain-{{ iptables_chain__name }}.service'

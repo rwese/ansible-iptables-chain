@@ -1,5 +1,4 @@
-rwese/ansible-iptables-chain
-=========
+# rwese/ansible-iptables-chain
 
 Create and maintain an iptables chain within an existing rules environment.
 
@@ -9,34 +8,28 @@ rules and keep existing connections.
 It will create an systemd service which runs on start and create the chain at
 the first position of INPUT `iptables_chain__interface`.
 
-Requirements
-------------
+## Requirements
 
-* iptables
-* systemd
+- iptables
+- systemd
 
-Role Variables
---------------
+## Role Variables
 
+| Variable Name                 | Type   | Purpose                                                | Default                                             | Required |
+| ----------------------------- | ------ | ------------------------------------------------------ | --------------------------------------------------- | -------- |
+| `whitelisted_cidrs`           | Array  | Whitelisted cidrs                                      | RFC1918                                             | Yes      |
+| `iptables_chain__state`       | String | If not present chain will be removed                   | `present`                                           | Yes      |
+| `iptables_chain__interface`   | String | Only follow the chain when for this incoming interface | `eth0`                                              | Yes      |
+| `iptables_chain__log_dropped` | String | log dropped packets, recommended for initial setup     | `true`                                              | Yes      |
+| `iptables_chain__dry_run`     | String | will only log                                          | `true`                                              | No       |
+| `iptables_chain__name`        | String | if you run multiple chains they must be unique         | `FILTER-INPUT-SECURE`, must not contain whitespaces | Yes      |
+| `rules`                       | String |                                                        | `[]`                                                | No       |
 
-| Variable Name | Type | Purpose | Default | Required |
-|---|---|---|---|---|
-| `whitelisted_cidrs` | Array | Whitelisted cidrs | RFC1918 | Yes |
-| `iptables_chain__state` | String | If not present chain will be removed | `present` | Yes |
-| `iptables_chain__interface` | String | Only follow the chain when for this incoming interface | `eth0` | Yes |
-| `iptables_chain__log_dropped` | String | log dropped packets, recommended for initial setup | `true` | Yes |
-| `iptables_chain__dry_run` | String | will only log | `true` | No |
-| `iptables_chain__name` | String | if you run multiple chains they must be unique | `FILTER-INPUT-SECURE`, must not contain whitespaces | Yes |
-| `rules` | String |  | `[]` | No |
-
-
-Dependencies
-------------
+## Dependencies
 
 none
 
-Example Playbook
-----------------
+## Example Playbook
 
     - hosts: servers
       become: true
@@ -54,17 +47,20 @@ Example Playbook
               - protocol: tcp
                 port: 22
               - protocol: tcp
+                ip_version: 4
+                port: 20
+              - protocol: tcp
+                ip_version: 6
+                port: 21
+              - protocol: tcp
                 port: 80
               - protocol: tcp
                 port: 443
 
-
-License
--------
+## License
 
 MIT
 
-Author Information
-------------------
+## Author Information
 
 This role is primary for personal use and no support is promised

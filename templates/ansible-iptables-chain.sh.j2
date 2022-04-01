@@ -23,7 +23,7 @@ iptables -t filter -A {{ iptables_chain__name }} -s {{ cidr }}  -j  RETURN
 # set default to accept during apply
 # we use return as we do not want to interfere with other blocking rules by accepting too early
 
-{% for rule in ip4_rules  %}
+{% for rule in rules if rule.ip_version is not defined or rule.ip_version == 4 %}
 {% set rule_action = iptables_chain__default_match_action %}
 {% if rule.action is defined %}
 {% set rule_action = rule.action %}
@@ -68,7 +68,7 @@ ip6tables -t filter -A {{ iptables_chain__name }} -s {{ cidr }}  -j  RETURN
 # set default to accept during apply
 # we use return as we do not want to interfere with other blocking rules by accepting too early
 
-{% for rule in ip6_rules  %}
+{% for rule in rules if rule.ip_version is not defined or rule.ip_version == 6 %}
 {% set rule_action = iptables_chain__default_match_action %}
 {% if rule.action is defined %}
 {% set rule_action = rule.action %}

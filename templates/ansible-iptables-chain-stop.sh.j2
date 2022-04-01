@@ -3,5 +3,11 @@ set -x
 # ANSIBLE GENERATED, DO NOT MODIFY!!!!!
 
 iptables -D INPUT -i {{ iptables_chain__interface }} -j {{ iptables_chain__name }} || true
+iptables -D FILTER -i {{ iptables_chain__interface }} -j {{ iptables_chain__name }} || true
 iptables --flush {{ iptables_chain__name }} || true
 iptables -X {{ iptables_chain__name }} || true
+
+ip6tables -D INPUT -i {{ iptables_chain__interface }} -j {{ iptables_chain__name }} || true
+ip6tables -D FILTER -i {{ iptables_chain__interface }} -j {{ iptables_chain__name }} || true
+ip6tables --flush {{ iptables_chain__name }} || true
+ip6tables -X {{ iptables_chain__name }} || true

@@ -17,7 +17,7 @@
     mode: 0740
 
 - name: Copy iptables service
-  become: yes
+  become: true
   vars:
     ip4_whitelisted_cidrs: '{{ ip4_whitelisted_cidrs | default(iptables_chain__ip4_whitelisted_cidrs) }}'
     # ip6_whitelisted_cidrs: '{{ ip6_whitelisted_cidrs | default(iptables_chain__ip6_whitelisted_cidrs) }}'
@@ -28,7 +28,7 @@
   changed_when: false
 
 - name: Enable iptables service
-  become: yes
+  become: true
   ansible.builtin.systemd:
     name: 'ansible-iptables-chain-{{ iptables_chain__name }}.service'
     enabled: "{{ 'yes' if iptables_chain__state == 'present' else 'no' }}"

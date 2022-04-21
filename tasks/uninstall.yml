@@ -1,13 +1,13 @@
 ---
 - name: Disable iptables service
-  become: yes
+  become: true
   ansible.builtin.systemd:
     name: 'ansible-iptables-chain-{{ iptables_chain__name }}.service'
     enabled: 'no'
     state: 'stopped'
 
 - name: Delete files
-  become: yes
+  become: true
   file:
     dest: '{{ item }}'
     state: absent

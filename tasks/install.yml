@@ -1,7 +1,7 @@
 ---
 - name: Deploy iptables start script
   template:
-    dest: '/etc/ansible-iptables-chain-{{ iptables_chain__name }}.sh'
+    dest: "/etc/ansible-iptables-chain-{{ iptables_chain__name }}.sh"
     src: templates/ansible-iptables-chain.sh.j2
     owner: root
     group: root
@@ -10,7 +10,7 @@
 
 - name: Deploy iptables stop script
   template:
-    dest: '/etc/ansible-iptables-chain-stop-{{ iptables_chain__name }}.sh'
+    dest: "/etc/ansible-iptables-chain-stop-{{ iptables_chain__name }}.sh"
     src: templates/ansible-iptables-chain-stop.sh.j2
     owner: root
     group: root
@@ -19,17 +19,17 @@
 - name: Copy iptables service
   become: true
   vars:
-    ip4_whitelisted_cidrs: '{{ ip4_whitelisted_cidrs | default(iptables_chain__ip4_whitelisted_cidrs) }}'
+    ip4_whitelisted_cidrs: "{{ ip4_whitelisted_cidrs | default(iptables_chain__ip4_whitelisted_cidrs) }}"
     # ip6_whitelisted_cidrs: '{{ ip6_whitelisted_cidrs | default(iptables_chain__ip6_whitelisted_cidrs) }}'
   template:
     src: templates/ansible-iptables-chain.service.j2
-    dest: '/etc/systemd/system/ansible-iptables-chain-{{ iptables_chain__name }}.service'
-    mode: '0664'
+    dest: "/etc/systemd/system/ansible-iptables-chain-{{ iptables_chain__name }}.service"
+    mode: "0664"
   changed_when: false
 
 - name: Enable iptables service
   become: true
   ansible.builtin.systemd:
-    name: 'ansible-iptables-chain-{{ iptables_chain__name }}.service'
+    name: "ansible-iptables-chain-{{ iptables_chain__name }}.service"
     enabled: "{{ 'yes' if iptables_chain__state == 'present' else 'no' }}"
     state: "{{ 'restarted' if chain.changed else 'started' }}"

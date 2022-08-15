@@ -1,6 +1,7 @@
 [Unit]
 Description=Apply persistent iptables rules {{ iptables_chain__name }}
 After=syslog.target
+Wants=network-online.target
 
 [Service]
 Type=oneshot
